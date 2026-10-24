@@ -5,7 +5,7 @@ import com.humberto.events.domain.EventType;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProductionEventHandler implements EventTypeHandler{
+public class ProductionEventHandler implements EventTypeHandler {
 
     @Override
     public EventType supports() {

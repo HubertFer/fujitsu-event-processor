@@ -8,6 +8,8 @@ import com.humberto.events.repository.AuditRecordRepository;
 import com.humberto.events.repository.EventRepository;
 import com.humberto.events.service.handler.ProductionEventHandler;
 import com.humberto.events.service.handler.QualityEventHandler;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,12 +35,16 @@ class EventServiceTest {
     @Mock
     private AuditRecordRepository auditRecordRepository;
 
+    private MeterRegistry meterRegistry;
+
     private EventService eventService;
 
     @BeforeEach
     void setUp() {
+        meterRegistry = new SimpleMeterRegistry();
         eventService = new EventService(eventRepository,
-                List.of(new ProductionEventHandler(), new QualityEventHandler(auditRecordRepository)));
+                List.of(new ProductionEventHandler(), new QualityEventHandler(auditRecordRepository)),
+                meterRegistry);
     }
 
     @Test
@@ -49,6 +55,7 @@ class EventServiceTest {
 
         verify(eventRepository).saveAndFlush(event);
         verifyNoInteractions(auditRecordRepository);
+        assertThat(processedCount("PRODUCTION", "registered")).isEqualTo(1.0);
     }
 
     @Test
@@ -74,6 +81,7 @@ class EventServiceTest {
 
         verify(eventRepository, never()).saveAndFlush(any());
         verifyNoInteractions(auditRecordRepository);
+        assertThat(processedCount("QUALITY", "duplicate")).isEqualTo(1.0);
     }
 
     @Test
@@ -89,12 +97,20 @@ class EventServiceTest {
 
     @Test
     void failsWhenEventTypeHasNoHandler() {
-        assertThatThrownBy(() -> new EventService(eventRepository, List.of(new ProductionEventHandler())))
+        assertThatThrownBy(() -> new EventService(eventRepository, List.of(new ProductionEventHandler()), meterRegistry))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("QUALITY");
     }
 
     private Event event(String eventId, EventType type) {
         return new Event(eventId, type, "Test event", LocalDateTime.of(2026, 5, 20, 10, 0));
+    }
+
+    private double processedCount(String type, String outcome) {
+        return meterRegistry.get("events.processed")
+                .tag("type", type)
+                .tag("outcome", outcome)
+                .counter()
+                .count();
     }
 }
