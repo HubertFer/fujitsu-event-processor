@@ -10,11 +10,17 @@ Full-stack application that receives events sent by factory equipment, prevents 
 
 ### Everything with one command (recommended)
 
-Requirement: Docker.
+Requirement: Docker (on Windows and macOS, Docker Desktop must be running).
+
+Run the commands in a terminal, from the repository root (the folder that contains `compose.yaml`):
 
 ```bash
+git clone https://github.com/HubertFer/event-processor.git
+cd event-processor
 docker compose up --build
 ```
+
+The first build takes a few minutes (it downloads the Maven and npm dependencies). The application is ready when the logs stop and the frontend container is started.
 
 | Service | URL |
 |---|---|
@@ -32,7 +38,13 @@ If ports `4200` or `8080` are already in use, choose other host ports:
 FRONTEND_PORT=4300 BACKEND_PORT=9090 docker compose up --build
 ```
 
-To stop and remove all data: `docker compose down -v`.
+On Windows PowerShell:
+
+```powershell
+$env:FRONTEND_PORT=4300; $env:BACKEND_PORT=9090; docker compose up --build
+```
+
+To stop, press `Ctrl+C`. To stop and remove all data, from the same folder: `docker compose down -v`.
 
 ### Backend and frontend separately (development)
 
