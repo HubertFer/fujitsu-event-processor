@@ -25,11 +25,11 @@ public class EventController {
     @PostMapping
     public ResponseEntity<EventResponse> register(@Valid @RequestBody EventRequest request) {
         Event event = eventService.register(request.toEvent());
-        URI Location = ServletUriComponentsBuilder.fromCurrentRequest()
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{eventId}")
                 .buildAndExpand(event.getId())
                 .toUri();
-        return ResponseEntity.created(Location).body(EventResponse.from(event));
+        return ResponseEntity.created(location).body(EventResponse.from(event));
     }
 
     @GetMapping
