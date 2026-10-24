@@ -15,8 +15,8 @@ Requirement: Docker (on Windows and macOS, Docker Desktop must be running). Java
 Run the commands in a terminal, from the repository root (the folder that contains `compose.yaml`):
 
 ```bash
-git clone https://github.com/HubertFer/event-processor.git
-cd event-processor
+git clone https://github.com/HubertFer/fujitsu-event-processor.git
+cd fujitsu-event-processor
 docker compose up --build
 ```
 
