@@ -6,6 +6,5 @@ import com.humberto.events.domain.EventType;
 public interface EventTypeHandler {
 
     EventType supports();
-
     void handle(Event event);
 }
