@@ -22,6 +22,7 @@ docker compose up --build
 | Backend API | http://localhost:8080/api/events |
 | Swagger UI | http://localhost:8080/swagger-ui/index.html |
 | Health check | http://localhost:8080/actuator/health |
+| Metrics (Prometheus) | http://localhost:8080/actuator/prometheus |
 
 Compose starts PostgreSQL, waits for it to be healthy, starts the backend (which applies the database migrations), waits for the backend health check and then starts the frontend.
 
@@ -61,14 +62,14 @@ cd backend
 ./mvnw test
 ```
 
-13 tests: unit tests of the event service with Mockito, and integration tests of the HTTP API with MockMvc and H2.
+17 tests: unit tests of the event service with Mockito, and integration tests of the HTTP API, correlation ID and metrics with MockMvc and H2.
 
 ```bash
 cd frontend
 npm test -- --watch=false
 ```
 
-9 tests (Jasmine + Karma, requires Chrome): API service with `HttpTestingController`, error message mapping and the registration form.
+11 tests (Jasmine + Karma, requires Chrome): API service and correlation ID interceptor with `HttpTestingController`, error message mapping and the registration form.
 
 ## API
 
@@ -134,6 +135,32 @@ Flow of `POST /api/events`:
 
 In Docker, Nginx serves the Angular build and forwards `/api` to the backend, so the browser only talks to one origin and no CORS configuration is needed.
 
+## Observability
+
+**Correlation ID.** Every request carries an `X-Correlation-Id` header:
+
+- the frontend generates a new ID for each API call (`correlationIdInterceptor`);
+- equipment can send its own ID; if the header is missing or invalid (only letters, digits and `-`, up to 64 characters, which prevents log injection), the backend generates a UUID;
+- `CorrelationIdFilter` puts the ID in the logging MDC and returns it in the response header, so every log line of a request can be found with a single search;
+- error messages in the frontend show the ID as a reference (`[ref: ...]`), so a user report can be matched to the backend logs.
+
+**Logs.** Each API request produces an access log line (`POST /api/events -> 201 in 12 ms`), plus business logs for registered events, rejected duplicates and created audit records. Locally the logs are human-readable with the correlation ID in brackets. In Docker they are structured JSON (ECS format, `LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs`), ready to be shipped to Elasticsearch, Loki or CloudWatch:
+
+```json
+{"@timestamp":"2026-10-24T19:08:00.275Z","log":{"level":"INFO","logger":"com.humberto.events.service.EventService"},"message":"Event registered eventId=OBS-1 type=QUALITY","correlationId":"demo-123"}
+```
+
+To follow them: `docker compose logs -f backend`.
+
+**Metrics.** Exposed in Prometheus format at `/actuator/prometheus`:
+
+- `events_processed_total{type, outcome}`: business counter of events by type (`PRODUCTION`, `QUALITY`) and outcome (`registered`, `duplicate`);
+- `http_server_requests_seconds{uri, method, status}`: latency and count of every HTTP request, provided by Spring Boot (shows, for example, how many `400` and `409` responses were returned).
+
+```bash
+curl -s http://localhost:8080/actuator/prometheus | grep events_processed
+```
+
 ## Technical decisions
 
 - **Duplicate protection enforced by the database.** `existsById` gives a fast, clear answer in the common case, but check-then-act is not safe under concurrency: two simultaneous requests with the same ID could both pass the check. The event ID is the primary key, `saveAndFlush` forces the insert inside the `try`, and a `DataIntegrityViolationException` is translated into the same `409 Conflict`.
@@ -153,6 +180,7 @@ In Docker, Nginx serves the Angular build and forwards `/api` to the backend, so
 - Authentication of the equipment (API key or mTLS) and of the frontend users.
 - Time zone in the event timestamp (`OffsetDateTime`) to avoid ambiguity between factories.
 - Asynchronous audit with the transactional outbox pattern, if auditing becomes slower or external.
-- Correlation ID in logs and metrics per event type (Micrometer) for observability.
+- Distributed tracing (OpenTelemetry) and dashboards/alerts (Grafana) on top of the existing logs and metrics.
+- Restrict access to the actuator endpoints (separate management port or authentication) in production.
 - Integration tests against PostgreSQL with Testcontainers, and end-to-end tests of the frontend.
 - CI pipeline running both test suites on every push.
