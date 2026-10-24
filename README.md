@@ -10,7 +10,7 @@ Full-stack application that receives events sent by factory equipment, prevents 
 
 ### Everything with one command (recommended)
 
-Requirement: Docker (on Windows and macOS, Docker Desktop must be running).
+Requirement: Docker (on Windows and macOS, Docker Desktop must be running). Java and Node.js are not needed: both applications are compiled inside the containers.
 
 Run the commands in a terminal, from the repository root (the folder that contains `compose.yaml`):
 
@@ -48,7 +48,7 @@ To stop, press `Ctrl+C`. To stop and remove all data, from the same folder: `doc
 
 ### Backend and frontend separately (development)
 
-**Backend** (requirement: Java 17+). Runs with an in-memory H2 database, no installation needed:
+**Backend** (requirement: JDK 17+; Maven is not needed, the wrapper downloads it). Runs with an in-memory H2 database, no installation needed:
 
 ```bash
 cd backend
@@ -57,7 +57,7 @@ cd backend
 
 The API is available at http://localhost:8080.
 
-**Frontend** (requirement: Node.js 20+):
+**Frontend** (requirement: Node.js 20.19+ or 22.12+):
 
 ```bash
 cd frontend
