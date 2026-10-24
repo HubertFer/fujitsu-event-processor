@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { EventService } from './event.service';
-import { EventRequest, FactoryEvent } from '../models/event.model';
+import { AuditRecord, EventRequest, FactoryEvent } from '../models/event.model';
 
 describe('EventService', () => {
   let service: EventService;
@@ -55,5 +55,18 @@ describe('EventService', () => {
       },
     ]);
     expect(events.length).toBe(1);
+  });
+
+  it('should fetch audit records', () => {
+    let audits: AuditRecord[] = [];
+
+    service.findAudits().subscribe((result) => (audits = result));
+
+    const req = httpTesting.expectOne('/api/audits');
+    expect(req.request.method).toBe('GET');
+    req.flush([
+      { id: 1, eventId: 'EVT-1', action: 'QUALITY_EVENT_REGISTERED', createdAt: '2026-05-20T13:00:00Z' },
+    ]);
+    expect(audits[0].action).toBe('QUALITY_EVENT_REGISTERED');
   });
 });

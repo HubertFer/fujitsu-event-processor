@@ -1,0 +1,22 @@
+@if (audits().length === 0) {
+  <p class="empty">No audit records yet. Quality events generate an audit record.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Event ID</th>
+        <th>Action</th>
+        <th>Created at</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (audit of audits(); track audit.id) {
+        <tr>
+          <td>{{ audit.eventId }}</td>
+          <td>{{ audit.action }}</td>
+          <td>{{ audit.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

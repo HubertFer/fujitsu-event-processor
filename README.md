@@ -81,7 +81,7 @@ cd frontend
 npm test -- --watch=false
 ```
 
-11 tests (Jasmine + Karma, requires Chrome): API service and correlation ID interceptor with `HttpTestingController`, error message mapping and the registration form.
+14 tests (Jasmine + Karma, requires Chrome): API service and correlation ID interceptor with `HttpTestingController`, error message mapping, the registration form and the audit trail table.
 
 ## API
 
@@ -131,7 +131,7 @@ event-processor/
 ├── frontend/                    Angular application
 │   └── src/app/
 │       ├── core/                models, API service and error mapping
-│       ├── features/events/     events page (container), form and table
+│       ├── features/events/     events page (container), form, events table and audit trail
 │       └── shared/components/   reusable UI components (alert)
 └── compose.yaml                 PostgreSQL + backend + frontend
 ```

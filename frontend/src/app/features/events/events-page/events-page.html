@@ -9,7 +9,12 @@
 <section>
   <div class="section-header">
     <h2>Registered events</h2>
-    <button type="button" (click)="loadEvents()">Refresh</button>
+    <button type="button" (click)="refresh()">Refresh</button>
   </div>
   <app-event-list [events]="events()" />
+</section>
+
+<section>
+  <h2>Audit trail</h2>
+  <app-audit-list [audits]="audits()" />
 </section>
