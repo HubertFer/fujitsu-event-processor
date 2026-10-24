@@ -1,0 +1,32 @@
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background: #f5f5f5;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #e3f2fd;
+  color: #0d47a1;
+  font-size: 0.85em;
+}
+
+.badge.quality {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.empty {
+  color: #777;
+}

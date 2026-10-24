@@ -1,0 +1,28 @@
+@if (events().length === 0) {
+<p class="empty">No events registered yet.</p>
+} @else {
+<table>
+  <thead>
+  <tr>
+    <th>Event ID</th>
+    <th>Type</th>
+    <th>Description</th>
+    <th>Timestamp</th>
+    <th>Received at</th>
+  </tr>
+  </thead>
+  <tbody>
+  @for (event of events(); track event.eventId) {
+  <tr>
+    <td>{{ event.eventId }}</td>
+    <td>
+      <span class="badge" [class.quality]="event.eventType === 'QUALITY'">{{ event.eventType }}</span>
+    </td>
+    <td>{{ event.description }}</td>
+    <td>{{ event.timestamp | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+    <td>{{ event.receivedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+  </tr>
+  }
+  </tbody>
+</table>
+}

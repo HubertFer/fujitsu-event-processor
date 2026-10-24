@@ -1,0 +1,7 @@
+<section>
+  <div class="section-header">
+    <h2>Registered events</h2>
+    <button type="button" (click)="loadEvents()">Refresh</button>
+  </div>
+  <app-event-list [events]="events()" />
+</section>
