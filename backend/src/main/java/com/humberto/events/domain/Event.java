@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class Event implements Persistable<String> {
 
     @Id
+    @Column(length = 100)
     private String eventId;
 
     @Enumerated(EnumType.STRING)
