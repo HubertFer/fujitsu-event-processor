@@ -1,0 +1,38 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label>
+    Event ID
+    <input type="text" formControlName="eventId" placeholder="EVT-1001" />
+    @if (hasError('eventId')) {
+    <small>Event ID is required (max 100 characters).</small>
+    }
+  </label>
+
+  <label>
+    Type
+    <select formControlName="eventType">
+      @for (type of eventTypes; track type) {
+      <option [value]="type">{{ type }}</option>
+      }
+    </select>
+  </label>
+
+  <label>
+    Description
+    <textarea formControlName="description" rows="3" placeholder="Production line started"></textarea>
+    @if (hasError('description')) {
+    <small>Description is required (max 500 characters).</small>
+    }
+  </label>
+
+  <label>
+    Timestamp
+    <input type="datetime-local" step="1" formControlName="timestamp" />
+    @if (hasError('timestamp')) {
+    <small>Timestamp is required.</small>
+    }
+  </label>
+
+  <button type="submit" [disabled]="submitting()">
+    {{ submitting() ? 'Sending...' : 'Register event' }}
+  </button>
+</form>

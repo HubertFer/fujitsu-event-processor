@@ -1,4 +1,12 @@
 <section>
+  <h2>Register event</h2>
+  @if (alert(); as alert) {
+  <app-alert [type]="alert.type" [message]="alert.message" />
+  }
+  <app-event-form [submitting]="submitting()" (submitted)="register($event)" />
+</section>
+
+<section>
   <div class="section-header">
     <h2>Registered events</h2>
     <button type="button" (click)="loadEvents()">Refresh</button>
