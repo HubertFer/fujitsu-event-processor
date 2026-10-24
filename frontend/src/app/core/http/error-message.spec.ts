@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { errorMessage } from './error-message';
 
 describe('errorMessage', () => {
@@ -24,5 +24,15 @@ describe('errorMessage', () => {
     });
 
     expect(errorMessage(error)).toBe('One or more fields are invalid (description: must not be blank)');
+  });
+
+  it('should include the correlation ID as a reference for support', () => {
+    const error = new HttpErrorResponse({
+      status: 500,
+      headers: new HttpHeaders({ 'X-Correlation-Id': 'abc-123' }),
+      error: { detail: 'An unexpected error occurred' },
+    });
+
+    expect(errorMessage(error)).toBe('An unexpected error occurred [ref: abc-123]');
   });
 });
